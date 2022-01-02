@@ -1,3 +1,5 @@
+![](docs/images/charmed-ring.png)
+
 # Charmed 💍 Ring
 
 A smart TCP proxy to replicate and backup [Charm FS](https://charm.sh) files.
