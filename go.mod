@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/buraksezer/consistent v0.9.0
 	github.com/cespare/xxhash v1.1.0
-	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/gin-gonic/gin v1.7.7
 	github.com/spf13/cobra v1.3.0
 )

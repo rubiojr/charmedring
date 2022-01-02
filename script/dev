@@ -18,6 +18,8 @@ trap "error" EXIT
 
 echo "🚀 Booting the Charmed Ring cluster..."
 mkdir -p tmp
+## empty so go mod tidy doesn't complain about file permissions
+touch tmp/go.mod
 docker-compose up -d >> tmp/dev.log 2>&1
 
 ## Wait for charm servers

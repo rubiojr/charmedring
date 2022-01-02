@@ -4,6 +4,8 @@ set -e
 ./script/docker-build
 
 cp -r test/fixtures tmp
+## empty so go mod tidy doesn't complain about file permissions
+touch tmp/go.mod
 trap "./script/clean-cluster" EXIT
 
 docker-compose up -d charm1 charm2 charm3 cring
