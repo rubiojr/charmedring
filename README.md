@@ -2,6 +2,14 @@
 
 A smart TCP proxy to replicate and backup [Charm FS](https://charm.sh) files.
 
+## Overview
+
+Charmed Ring is an HTTP/SSH proxy that acts as a Charm server and replicates files uploaded with `charm fs` to a number (two or more) of backend Charm servers.
+
+The proxy uses [consistent hashing](https://github.com/buraksezer/consistent) to replicate data among a number of configured servers.
+
+The goal of the project is to provide automatic backups and/or high availability of your CharmFS data, so the proxy has three different operational modes: replication, backup or a mixed replication+backup mode.
+
 ## Status
 
 Charmed Ring is currently a working prototype. Using the proxy to replicate important data is highly discouraged at the moment. Most of the work to measure performance, reliability and correctness still needs to happen.
@@ -12,14 +20,6 @@ From a security point of view, the proxy is stateless, and no JTW token manipula
 Besides the fairly immature status of the proxy, the Charm ecosystem is young and quickly evolving, and this proxy may need to adapt introducing breaking changes. It's certainly possible upstream changes before the Charm ecosystem solidifies may render it useless eventually.
 
 Tooling to quickly setup a development environment to evaluate the proxy functionality, [is provided](#testing).
-
-## Overview
-
-Charmed Ring is an HTTP/SSH proxy that acts as a Charm server and replicates files uploaded with `charm fs` to a number (two or more) of backend Charm servers.
-
-The proxy uses [consistent hashing](https://github.com/buraksezer/consistent) to replicate data among a number of configured servers.
-
-The goal of the project is to provide automatic backups and/or high availability of your CharmFS data, so the proxy has three different operational modes: replication, backup or a mixed replication+backup mode.
 
 ### Replication mode
 
