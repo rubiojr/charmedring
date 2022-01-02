@@ -37,7 +37,7 @@ func handleConn(conn net.Conn, remote string) {
 	go copy(closer, conn2, conn)
 	go copy(closer, conn, conn2)
 	<-closer
-	logf("connection complete", conn.RemoteAddr())
+	logf("connection to %s closed", conn.RemoteAddr())
 }
 
 func logf(format string, args ...interface{}) {

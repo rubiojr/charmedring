@@ -4,7 +4,8 @@ A smart TCP proxy to replicate and backup [Charm FS](https://charm.sh) files.
 
 ## Status
 
-Charmed Ring is currently a working prototype. Using the proxy to replicate important data is highly discouraged at the moment. Most of the work to measure performance, reliability and correctness still needs to happen. The proxy has not been tested to proxy other Charm services yet (KV, linking, etc).
+Charmed Ring is currently a working prototype. Using the proxy to replicate important data is highly discouraged at the moment. Most of the work to measure performance, reliability and correctness still needs to happen.
+The proxy should not interfere with other Charm functionality (KV, linking, etc), but it hasn't been tested extensively.
 
 From a security point of view, the proxy is stateless, and no JTW token manipulation happens when the HTTP requests traverse the proxy are proxied, so it should be relatively safe from a security point of view. SSH proxying happens at the TCP level, simply forwarding what the proxy receives from the client to the first configured backend. In any case, I didn't put much thinking into the security aspects of it yet.
 
