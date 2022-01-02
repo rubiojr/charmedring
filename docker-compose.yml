@@ -1,0 +1,57 @@
+version: "3"
+services:
+  charm1:
+    image: ghcr.io/rubiojr/charm:latest
+    container_name: charm1
+    volumes:
+      - ./tmp/cluster/charm1:/data
+    restart: unless-stopped
+    ports:
+      - 4001:35353 # ssh
+      - 4002:35354 # http
+      - 4003:35356 # health
+  charm2:
+    image: ghcr.io/rubiojr/charm:latest
+    container_name: charm2
+    volumes:
+      - ./tmp/cluster/charm2:/data
+    restart: unless-stopped
+    ports:
+      - 5001:35353 # ssh
+      - 5002:35354 # http
+      - 5003:35356 # health
+    command: serve --disable-accounts
+  charm3:
+    image: ghcr.io/rubiojr/charm:latest
+    container_name: charm3
+    volumes:
+      - ./tmp/cluster/charm3:/data
+    restart: unless-stopped
+    ports:
+      - 6001:35353 # ssh
+      - 6002:35354 # http
+      - 6003:35356 # health
+    command: serve --disable-accounts
+  cring:
+    image: ghcr.io/rubiojr/charmedring:latest
+    depends_on:
+      - charm1
+      - charm2
+      - charm3
+    container_name: cring
+    hostname: cring
+    restart: unless-stopped
+    ports:
+      - 35354:35354
+      - 35353:35353
+    command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354
+  client:
+    image: ghcr.io/rubiojr/charm:latest
+    container_name: client
+    depends_on:
+      - cring
+    volumes:
+      - ./tmp/client:/root/.local/share/charm
+    environment:
+      HOME: /root
+    command: -v

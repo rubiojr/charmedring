@@ -1,0 +1,59 @@
+#!/bin/bash
+set -e
+
+export CHARM_HOST=localhost
+
+if ! which charm >/dev/null 2>&1; then
+  echo "charm CLI not found, install it first"
+  exit 1
+fi
+
+error() {
+  echo
+  echo "☣️ Ruh roh! something catastrophically bad happened, aborting launch mission."
+  echo
+  exit 1
+}
+trap "error" EXIT
+
+echo "🚀 Booting the Charmed Ring cluster..."
+mkdir -p tmp
+docker-compose up -d >> tmp/dev.log 2>&1
+
+## Wait for charm servers
+echo "⏳ Waiting for Charm servers to start..."
+while ! nc -q 1 localhost 4002 </dev/null; do sleep 10; done
+while ! nc -q 1 localhost 5002 </dev/null; do sleep 10; done
+while ! nc -q 1 localhost 6002 </dev/null; do sleep 10; done
+
+echo "👤 Creating the first user..."
+charm name test
+
+docker run -v $PWD/tmp/cluster/charm1:/charm1 \
+           -v $PWD/tmp/cluster/charm2:/charm2 \
+           -v $PWD/tmp/cluster/charm3:/charm3 \
+           -i alpine /bin/sh -s >> /tmp/dev.log <<SCRIPT
+set -e
+apk update && apk upgrade && apk add --no-cache sqlite
+sqlite3 /charm1/db/charm_sqlite.db ".backup /tmp/dump.sqlite"
+sqlite3 /charm2/db/charm_sqlite.db ".restore /tmp/dump.sqlite"
+sqlite3 /charm3/db/charm_sqlite.db ".restore /tmp/dump.sqlite"
+cp -r /charm1/.ssh/* /charm2/.ssh/
+cp -r /charm1/.ssh/* /charm3/.ssh/
+SCRIPT
+
+docker-compose restart charm2 charm3 >> tmp/dev.log 2>&1
+
+trap - EXIT
+
+echo "💍 Charmed Ring cluster ready!"
+echo
+echo "Don't forget to export the required environment variable"
+echo "to use the Charmed Ring cluster:"
+echo "  export CHARM_HOST=localhost"
+echo
+echo "To monitor cluster logs:"
+echo "  docker-compose logs -f"
+echo
+echo "To clean up:"
+echo "  script/clean-cluster"

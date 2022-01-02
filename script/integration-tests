@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+./script/docker-build
+
+cp -r test/fixtures tmp
+trap "./script/clean-cluster" EXIT
+
+docker-compose up -d charm1 charm2 charm3 cring
+docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:one
+docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:two
+docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:tree
+docker run -v $PWD/tmp/:/mnt alpine chown -R $(id -u):$(id -u) /mnt
+
+failed=
+if ! diff -r tmp/cluster/charm1/files tmp/cluster/charm2/files; then
+  failed=1
+fi
+
+if ! diff -r tmp/cluster/charm1/files tmp/cluster/charm3/files; then
+  failed=1
+fi
+
+trap - EXIT
+./script/clean-cluster || true
+
+if [ -n "$failed" ]; then
+  echo "FAILED"
+  exit 1
+fi
