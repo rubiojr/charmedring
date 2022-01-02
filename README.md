@@ -8,18 +8,20 @@ Charmed Ring is an HTTP/SSH proxy that acts as a Charm server and replicates fil
 
 The proxy uses [consistent hashing](https://github.com/buraksezer/consistent) to replicate data among a number of configured servers.
 
-The goal of the project is to provide automatic backups and/or high availability of your CharmFS data, so the proxy has three different operational modes: replication, backup or a mixed replication+backup mode.
-
 ## Status
 
 Charmed Ring is currently a working prototype. Using the proxy to replicate important data is highly discouraged at the moment. Most of the work to measure performance, reliability and correctness still needs to happen.
 The proxy should not interfere with other Charm functionality (KV, linking, etc), but it hasn't been tested extensively.
 
-From a security point of view, the proxy is stateless, and no JTW token manipulation happens when the HTTP requests traverse the proxy are proxied, so it should be relatively safe from a security point of view. SSH proxying happens at the TCP level, simply forwarding what the proxy receives from the client to the first configured backend. In any case, I didn't put much thinking into the security aspects of it yet.
+From a security point of view, the proxy is stateless, and no JTW token manipulation happens when the HTTP requests traverse the proxy, so it should be relatively safe. SSH proxying happens at the TCP level, simply forwarding what the proxy receives from the client to the first configured Charm backend. Work to understand the security implications of having a proxy sitting between a Charm client and a server still needs to happen.
 
-Besides the fairly immature status of the proxy, the Charm ecosystem is young and quickly evolving, and this proxy may need to adapt introducing breaking changes. It's certainly possible upstream changes before the Charm ecosystem solidifies may render it useless eventually.
+Besides the fairly immature status of this proxy, the Charm ecosystem is young and quickly evolving, and this proxy may need to adapt introducing breaking changes. It's certainly possible upstream changes before the Charm ecosystem solidifies may render it useless eventually.
 
 Tooling to quickly setup a development environment to evaluate the proxy functionality, [is provided](#testing).
+
+## Operational modes
+
+The goal of the project is to provide automatic backups and/or high availability of your CharmFS data, so the proxy has three different operational modes: replication, backup and a mixed replication+backup mode.
 
 ### Replication mode
 
@@ -52,14 +54,17 @@ This mode has not been released yet, work in progress.
 
 ### Shared server state
 
-Every charm server part of the cluster needs to share server keys and users in the sqlite database.
+Every Charm (backend) server part of the cluster needs to share server keys and users in the sqlite database.
 
-It's currently not possible to replicate database and server keys to other charm servers, which means that you should start with a server, and once you have an account there, use a copy of the server data directory to spawn new charm servers.
+It's currently not possible to replicate database and server keys to other charm servers automatically, which means that you should start with a single server, and once you have an account there, use a copy of the server data directory to spawn new charm servers.
+
+The [script/dev](script/dev) is a naive attempt at setting up a cluster that can be used as a reference.
 
 ### Single account server
 
-The proxy currently proxies account creation and JTW token requests (via SSH) to the first configured backend. If that backend fails,
-## Missing
+The proxy currently proxies account creation and JTW token requests (via SSH) to the first configured backend. If that backend fails, the rest of the operations will fail.
+
+## Missing features
 
 The following features will be available eventually, ordered by priority (high to low):
 
@@ -74,9 +79,11 @@ The following features will be available eventually, ordered by priority (high t
 * [ ] Prometheus exporter
 * [ ] Tools (Charm admin API?) to create and replicate charm accounts from CLI, when automatic server accounts has been disabled.
 * [ ] [--disable-accounts](https://github.com/charmbracelet/charm) or Charm database replication
-* [ ] Optionally serve blobs from the remote S3 bucket if backend servers are not available (read-only mode) 
+* [ ] Optionally serve blobs from the remote S3 bucket if backend servers are not available (read-only mode)
 
-## Building
+## Development
+
+### Building
 
 You'll need Go installed.
 
@@ -84,7 +91,7 @@ You'll need Go installed.
 make
 ```
 
-## Running the proxy
+### Running the proxy
 
 ```
 cring --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354
@@ -92,11 +99,11 @@ cring --host http://charm1:35354 --host http://charm2:35354 --host http://charm3
 
 The `--host` argument needs to be repeated one for every backend server to be used (minimum of two).
 
-## Testing
+### Testing
 
 `script/integration-tests` can be used to run the tests.
 
-### Setting up a development environment
+#### Setting up a development environment
 
 The development environment sets up a Charmed Ring cluster with three Charm servers. Linux only.
 
