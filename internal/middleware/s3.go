@@ -70,40 +70,42 @@ func S3(endpoint, accessKeyID, secretAccessKey, bucketName, location string) (gi
 		return nil, err
 	}
 
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		rb := &binding{}
-		err := c.ShouldBindBodyWith(struct{}{}, rb)
+		err := ctx.ShouldBindBodyWith(struct{}{}, rb)
 		if err != nil {
 			s3Errorf("request body read failed: %s", err)
 			return
 		}
 
-		header, err := fileHeader(c.Request, rb.buf)
-		if err != nil {
-			s3Errorf("invalid multipart file: %s", err)
-			return
-		}
+		c := ctx.Copy()
+		go func() {
+			header, err := fileHeader(c.Request, rb.buf)
+			if err != nil {
+				s3Errorf("invalid multipart file: %s", err)
+				return
+			}
 
-		file, err := header.Open()
-		if err != nil {
-			s3Errorf("error opening file: %s", err)
-			return
-		}
-		defer file.Close()
+			file, err := header.Open()
+			if err != nil {
+				s3Errorf("error opening file: %s", err)
+				return
+			}
+			defer file.Close()
 
-		path := c.Request.URL.Path
-		cid, err := charmIDFromRequest(c.Request)
-		if err != nil {
-			s3Errorf("failed extracting charm ID from request: %s", err)
-			return
-		}
-		obj := filepath.Join(cid, strings.TrimPrefix(path, "/v1/fs/"))
-		s3Debugf("uploading %s, %d bytes", obj, header.Size)
-		err = uploader.upload(c, obj, file, header.Size)
-		if err != nil {
-			s3Errorf("failed uploading object %s: %s", obj, err)
-			return
-		}
+			path := c.Request.URL.Path
+			cid, err := charmIDFromRequest(c.Request)
+			if err != nil {
+				s3Errorf("failed extracting charm ID from request: %s", err)
+				return
+			}
+			obj := filepath.Join(cid, strings.TrimPrefix(path, "/v1/fs/"))
+			s3Debugf("uploading %s, %d bytes", obj, header.Size)
+			err = uploader.upload(c, obj, file, header.Size)
+			if err != nil {
+				s3Errorf("failed uploading object %s: %s", obj, err)
+			}
+		}()
 	}, nil
 }
 

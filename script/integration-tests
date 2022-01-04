@@ -30,3 +30,5 @@ if [ -n "$failed" ]; then
   echo "FAILED"
   exit 1
 fi
+
+echo "PASSED"
