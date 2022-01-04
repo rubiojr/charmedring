@@ -8,7 +8,7 @@ cp -r test/fixtures tmp
 touch tmp/go.mod
 trap "./script/clean-cluster" EXIT
 
-docker-compose up -d charm1 charm2 charm3 cring
+docker-compose up -d charm1 charm2 charm3 minio cring
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:one
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:two
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:tree

@@ -38,13 +38,16 @@ services:
       - charm1
       - charm2
       - charm3
+    environment:
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
     container_name: cring
     hostname: cring
     restart: unless-stopped
     ports:
       - 35354:35354
       - 35353:35353
-    command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354
+    command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354 --debug --backup-url http://minio:9000 --backup-bucket charmedring
   client:
     image: ghcr.io/rubiojr/charm:latest
     container_name: client
@@ -55,3 +58,20 @@ services:
     environment:
       HOME: /root
     command: -v
+  minio:
+    image: quay.io/minio/minio:RELEASE.2021-12-29T06-49-06Z
+    command: server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio1
+    volumes:
+      - ./tmp/minio:/data

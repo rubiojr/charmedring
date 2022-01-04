@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -34,6 +35,7 @@ func (h hasher) Sum64(data []byte) uint64 {
 }
 
 func CharmedRing(urls []string) gin.HandlerFunc {
+	crInfo("init")
 	ring := initRing(urls)
 
 	return func(c *gin.Context) {
@@ -45,31 +47,37 @@ func CharmedRing(urls []string) gin.HandlerFunc {
 			panic(err)
 		}
 
-		buf, err := ioutil.ReadAll(c.Request.Body)
+		rb := &binding{}
+		err = c.ShouldBindBodyWith(struct{}{}, rb)
 		if err != nil {
-			panic(err)
+			crErrorf("failed reading request body %s", err)
+			return
 		}
 
+		crDebugf("uploading %d bytes", rb.buf.Len())
 		for _, u := range members {
 			wg.Add(1)
 			go func(m member) {
 				defer wg.Done()
-				if err := sendRequest(c.Request, buf, m); err == nil {
+				if err := sendRequest(c.Request, rb.buf.Bytes(), m); err == nil {
 					atomic.AddUint64(&count, 1)
+				} else {
+					crErrorf("sending request to %s failed: %s", m, err)
 				}
 			}(u.(member))
 		}
 
 		wg.Wait()
 		if count < 2 {
-			mlog.Errorf("replication failed, missed %d node(s)", len(urls)-int(count))
+			crErrorf("replication failed, missed %d node(s)", len(urls)-int(count))
 			c.String(http.StatusServiceUnavailable, "")
+			return
 		}
 	}
 }
 
 func sendRequest(r *http.Request, buf []byte, m member) error {
-	mlog.Debugf("sending data to %s", m.String())
+	crDebugf("sending data to %s", m.String())
 	curl, err := url.Parse(m.String())
 	if err != nil {
 		log.Printf("error parsing charm url: %w", err)
@@ -83,9 +91,6 @@ func sendRequest(r *http.Request, buf []byte, m member) error {
 
 	client := &http.Client{}
 	_, err = client.Do(proxyReq)
-	if err != nil {
-		mlog.Debugf("error: sending request to %s failed: %s", m, err)
-	}
 	return err
 }
 
@@ -99,9 +104,21 @@ func initRing(members []string) *consistent.Consistent {
 
 	r := consistent.New(nil, cfg)
 	for _, m := range members {
-		mlog.Debugf("adding member %s to the ring", m)
+		crDebugf("adding member %s to the ring", m)
 		r.Add(member(m))
 	}
 
 	return r
+}
+
+func crInfo(msg string, args ...interface{}) {
+	mlog.Infof(fmt.Sprintf("[cring] %s", msg), args...)
+}
+
+func crErrorf(msg string, args ...interface{}) {
+	mlog.Errorf(fmt.Sprintf("[cring] %s", msg), args...)
+}
+
+func crDebugf(msg string, args ...interface{}) {
+	mlog.Debugf(fmt.Sprintf("[cring] %s", msg), args...)
 }

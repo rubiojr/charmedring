@@ -5,6 +5,7 @@ import (
 	"log"
 	stdlog "log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,12 @@ func Errorf(msg string, args ...interface{}) {
 }
 
 func Debugf(msg string, args ...interface{}) {
+	if os.Getenv("CHARMEDRING_DEBUG") != "" {
+		stdlog.Printf(msg, args...)
+	}
+}
+
+func Infof(msg string, args ...interface{}) {
 	stdlog.Printf(msg, args...)
 }
 
@@ -32,12 +39,10 @@ type logWriter struct {
 }
 
 func (writer logWriter) Write(bytes []byte) (int, error) {
-	return fmt.Print("[CRING] " + time.Now().UTC().Format("2006/01/02 - 15:04:05") + " " + string(bytes))
+	return fmt.Print(time.Now().UTC().Format("2006/01/02 15:04:05") + " " + string(bytes))
 }
 
 func init() {
 	log.SetFlags(0)
 	log.SetOutput(new(logWriter))
-	log.Println("This is something being logged!")
-
 }
