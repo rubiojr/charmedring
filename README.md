@@ -48,13 +48,9 @@ This will eventually change to provide high availability for reads also.
 
 In backup mode, every write operation is replicated to an S3 bucket. If bucket versioning is enabled, you also get protection against accidental file change or removal, given that delete/update operations are also replicated.
 
-This mode has not been released yet, work in progress.
-
 ### Replication+backup mode
 
-Combines the first two modes.
-
-This mode has not been released yet, work in progress.
+Combines the first two modes. Files are sent to an S3 bucket and then replicated to the other Charm nodes.
 
 ## Known limitations
 
