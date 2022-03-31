@@ -61,7 +61,7 @@ var serveCmd = &cobra.Command{
 			return err
 		}
 
-		middlewares := []gin.HandlerFunc{}
+		middlewares := []gin.HandlerFunc{middleware.JWKS()}
 		if backupURL != "" {
 			if backupBucket == "" {
 				return fmt.Errorf("backup-bucket is required when backup-url is specified")

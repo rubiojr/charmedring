@@ -1,7 +1,7 @@
 version: "3"
 services:
   charm1:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: charm1
     volumes:
       - ./tmp/cluster/charm1:/data
@@ -11,7 +11,7 @@ services:
       - 4002:35354 # http
       - 4003:35356 # health
   charm2:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: charm2
     volumes:
       - ./tmp/cluster/charm2:/data
@@ -22,7 +22,7 @@ services:
       - 5003:35356 # health
     command: serve
   charm3:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: charm3
     volumes:
       - ./tmp/cluster/charm3:/data
@@ -49,7 +49,7 @@ services:
       - 35353:35353
     command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354 --debug --backup-url http://minio:9000 --backup-bucket charmedring
   client:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: client
     depends_on:
       - cring

@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	jwt "github.com/golang-jwt/jwt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	mlog "github.com/rubiojr/charmedring/internal/log"
@@ -94,9 +93,10 @@ func S3(endpoint, accessKeyID, secretAccessKey, bucketName, location string) (gi
 			defer file.Close()
 
 			path := c.Request.URL.Path
-			cid, err := charmIDFromRequest(c.Request)
-			if err != nil {
-				s3Errorf("failed extracting charm ID from request: %s", err)
+
+			cid, ok := c.Value("charm_id").(string)
+			if !ok {
+				c.String(http.StatusBadRequest, "charm_id not found")
 				return
 			}
 			obj := filepath.Join(cid, strings.TrimPrefix(path, "/v1/fs/"))
@@ -161,35 +161,6 @@ func (u *uploader) upload(ctx context.Context, name string, reader io.Reader, le
 
 	s3Debugf("uploaded %s", name)
 	return nil
-}
-
-func charmIDFromRequest(r *http.Request) (string, error) {
-	user := strings.Split(r.Header.Get("Authorization"), " ")[1]
-	if user == "" {
-		return "", fmt.Errorf("missing user key in context")
-	}
-
-	var id string
-	_, err := jwt.Parse(user, func(t *jwt.Token) (interface{}, error) {
-		cl := t.Claims.(jwt.MapClaims)
-		var ok bool
-		id, ok = cl["sub"].(string)
-		if !ok {
-			return nil, fmt.Errorf("invalid charmID in token")
-		}
-		var raw interface{}
-		return raw, nil
-	})
-
-	if err != nil {
-		return "", err
-	}
-
-	if id == "" {
-		return "", fmt.Errorf("missing charmID in token")
-	}
-
-	return id, nil
 }
 
 func s3Errorf(msg string, args ...interface{}) {
