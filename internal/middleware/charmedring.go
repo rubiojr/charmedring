@@ -90,7 +90,9 @@ func sendRequest(r *http.Request, buf []byte, m member) error {
 	proxyReq.URL.Scheme = curl.Scheme
 
 	client := &http.Client{}
-	_, err = client.Do(proxyReq)
+	resp, err := client.Do(proxyReq)
+	resp.Body.Close()
+
 	return err
 }
 
