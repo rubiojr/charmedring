@@ -48,6 +48,9 @@ func logf(msg string, args ...interface{}) {
 }
 
 func copy(closer chan struct{}, dst io.Writer, src io.Reader) {
-	_, _ = io.Copy(dst, src)
+	_, err := io.Copy(dst, src)
+	if err != nil {
+		logf("error %s", err)
+	}
 	closer <- struct{}{}
 }
