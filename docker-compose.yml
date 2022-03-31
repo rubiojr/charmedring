@@ -1,7 +1,7 @@
 version: "3"
 services:
   charm1:
-    image: ghcr.io/rubiojr/charm:latest
+    image: charmcli/charm:latest
     container_name: charm1
     volumes:
       - ./tmp/cluster/charm1:/data
@@ -11,7 +11,7 @@ services:
       - 4002:35354 # http
       - 4003:35356 # health
   charm2:
-    image: ghcr.io/rubiojr/charm:latest
+    image: charmcli/charm:latest
     container_name: charm2
     volumes:
       - ./tmp/cluster/charm2:/data
@@ -20,9 +20,9 @@ services:
       - 5001:35353 # ssh
       - 5002:35354 # http
       - 5003:35356 # health
-    command: serve --disable-accounts
+    command: serve
   charm3:
-    image: ghcr.io/rubiojr/charm:latest
+    image: charmcli/charm:latest
     container_name: charm3
     volumes:
       - ./tmp/cluster/charm3:/data
@@ -31,7 +31,7 @@ services:
       - 6001:35353 # ssh
       - 6002:35354 # http
       - 6003:35356 # health
-    command: serve --disable-accounts
+    command: serve
   cring:
     image: ghcr.io/rubiojr/charmedring:latest
     depends_on:
@@ -49,7 +49,7 @@ services:
       - 35353:35353
     command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354 --debug --backup-url http://minio:9000 --backup-bucket charmedring
   client:
-    image: ghcr.io/rubiojr/charm:latest
+    image: charmcli/charm:latest
     container_name: client
     depends_on:
       - cring
