@@ -93,7 +93,12 @@ var serveCmd = &cobra.Command{
 		router.NoRoute(middleware.CharmProxy(hosts[0]))
 
 		sshBackend := fmt.Sprintf("%s:%d", sshURL.Hostname(), sshBackendPort)
-		go sshproxy.Run(sshProxyAddr, sshBackend)
+		go func() {
+			err := sshproxy.Run(sshProxyAddr, sshBackend)
+			if err != nil {
+				panic(err)
+			}
+		}()
 
 		log.Printf("[proxy] listening on %v\n", addr)
 		return router.Run(addr)

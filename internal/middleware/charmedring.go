@@ -80,7 +80,7 @@ func sendRequest(r *http.Request, buf []byte, m member) error {
 	crDebugf("sending data to %s", m.String())
 	curl, err := url.Parse(m.String())
 	if err != nil {
-		log.Printf("error parsing charm url: %w", err)
+		log.Printf("error parsing charm url: %s", err)
 		return err
 	}
 	proxyReq := r.Clone(context.Background())

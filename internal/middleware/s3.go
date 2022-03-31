@@ -170,7 +170,7 @@ func charmIDFromRequest(r *http.Request) (string, error) {
 	}
 
 	var id string
-	jwt.Parse(user, func(t *jwt.Token) (interface{}, error) {
+	_, err := jwt.Parse(user, func(t *jwt.Token) (interface{}, error) {
 		cl := t.Claims.(jwt.MapClaims)
 		var ok bool
 		id, ok = cl["sub"].(string)
@@ -180,6 +180,10 @@ func charmIDFromRequest(r *http.Request) (string, error) {
 		var raw interface{}
 		return raw, nil
 	})
+
+	if err != nil {
+		return "", err
+	}
 
 	if id == "" {
 		return "", fmt.Errorf("missing charmID in token")

@@ -16,7 +16,7 @@ func CharmProxy(charmURL string) gin.HandlerFunc {
 		var err error
 		curl, err := url.Parse(charmURL)
 		if err != nil {
-			mlog.RenderError(c, fmt.Sprintf("error parsing charm url: %w", err))
+			mlog.RenderError(c, fmt.Sprintf("error parsing charm url: %s", err))
 			return
 		}
 
