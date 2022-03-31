@@ -5,13 +5,13 @@ cp -r test/fixtures tmp
 ## empty so go mod tidy doesn't complain about file permissions
 touch tmp/go.mod
 
-./script/docker-build > tmp/cluster-boot.log 2>&1
+./script/docker-build
 
-docker-compose up -d charm1 charm2 charm3 minio cring >> tmp/cluster-boot.log 2>&1
+docker-compose up -d charm1 charm2 charm3 minio cring
 docker-compose --log-level ERROR run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:one
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:two
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:tree
-docker run -v $PWD/tmp/:/mnt alpine chown -R $(id -u):$(id -u) /mnt >> tmp/cluster-boot.log 2>&1
+docker run -v $PWD/tmp/:/mnt alpine chown -R $(id -u):$(id -u) /mnt
 
 failed=
 if ! diff -r tmp/cluster/charm1/files tmp/cluster/charm2/files; then
