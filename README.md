@@ -21,6 +21,10 @@ Besides the fairly immature status of this proxy, the Charm ecosystem is young a
 
 Tooling to quickly setup a development environment to evaluate the proxy functionality, [is provided](#testing).
 
+## Quick Start
+
+Boot a [local cluster](docs/sample-cluster.md) that includes a Charmed Ring proxy, an S3 server (minio) and 3 Charm servers.
+
 ## Operational modes
 
 The goal of the project is to provide automatic backups and/or high availability of your CharmFS data, so the proxy has three different operational modes: replication, backup and a mixed replication+backup mode.
@@ -70,8 +74,8 @@ The proxy currently proxies account creation and JTW token requests (via SSH) to
 
 The following features will be available eventually, ordered by priority (high to low):
 
-* [ ] Backup mode (🚧 WiP)
-* [ ] Mixed replica+backup mode (🚧 WiP)
+* [X] Backup mode (🚧 WiP)
+* [X] Mixed replica+backup mode (🚧 WiP)
 * [ ] HTTP load balancing (🚧 WiP) for reads
 * [ ] Multiple SSH backends support ((🚧 WiP)
 * [ ] HTTP proxy speed optimizations
@@ -80,7 +84,6 @@ The following features will be available eventually, ordered by priority (high t
 * [ ] Proxy stats (backend usage, blob distribution, usage, errors, etc)
 * [ ] Prometheus exporter
 * [ ] Tools (Charm admin API?) to create and replicate charm accounts from CLI, when automatic server accounts has been disabled.
-* [ ] [--disable-accounts](https://github.com/charmbracelet/charm) or Charm database replication
 * [ ] Optionally serve blobs from the remote S3 bucket if backend servers are not available (read-only mode)
 
 ## Development

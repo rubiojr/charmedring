@@ -8,6 +8,12 @@ if ! which charm >/dev/null 2>&1; then
   exit 1
 fi
 
+if [ "$1" = "refresh" ]; then
+  echo "🚀 Refreshing docker containers..."
+  docker-compose up -d
+  exit
+fi
+
 error() {
   echo
   echo "☣️ Ruh roh! something catastrophically bad happened, aborting launch mission."

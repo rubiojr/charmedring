@@ -1,13 +1,17 @@
 package sshproxy
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
+	"sync"
+
+	mlog "github.com/rubiojr/charmedring/internal/log"
 )
 
 func Run(local, remote string) error {
-	logf("listening: %v\nproxying: %v\n\n", local, remote)
+	logf("listening on %s, proxying %s", local, remote)
 
 	listener, err := net.Listen("tcp", local)
 	if err != nil {
@@ -25,7 +29,7 @@ func Run(local, remote string) error {
 }
 
 func handleConn(conn net.Conn, remote string) {
-	logf("new connection: %s", conn.RemoteAddr())
+	logf("new connection to: %s", conn.RemoteAddr())
 	defer conn.Close()
 	conn2, err := net.Dial("tcp", remote)
 	if err != nil {
@@ -33,18 +37,24 @@ func handleConn(conn net.Conn, remote string) {
 		return
 	}
 	defer conn2.Close()
-	closer := make(chan struct{}, 2)
-	go copy(closer, conn2, conn)
-	go copy(closer, conn, conn2)
-	<-closer
+
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	go copy(wg, conn2, conn)
+	go copy(wg, conn, conn2)
+	wg.Wait()
+
 	logf("connection to %s closed", conn.RemoteAddr())
 }
 
-func logf(format string, args ...interface{}) {
-	log.Printf("[SSH_PROXY] "+format, args...)
+func logf(msg string, args ...interface{}) {
+	mlog.Debugf(fmt.Sprintf("[ssh] %s", msg), args...)
 }
 
-func copy(closer chan struct{}, dst io.Writer, src io.Reader) {
-	_, _ = io.Copy(dst, src)
-	closer <- struct{}{}
+func copy(wg *sync.WaitGroup, dst io.Writer, src io.Reader) {
+	_, err := io.Copy(dst, src)
+	if err != nil {
+		logf("error %s", err)
+	}
+	wg.Done()
 }

@@ -1,15 +1,13 @@
 #!/bin/bash
 set -e
 
-./script/docker-build
-
 cp -r test/fixtures tmp
 ## empty so go mod tidy doesn't complain about file permissions
 touch tmp/go.mod
-trap "./script/clean-cluster" EXIT
+
+./script/docker-build
 
 docker-compose up -d charm1 charm2 charm3 minio cring
-sleep 5
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:one
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:two
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:tree
@@ -24,12 +22,20 @@ if ! diff -r tmp/cluster/charm1/files tmp/cluster/charm3/files; then
   failed=1
 fi
 
-trap - EXIT
-./script/clean-cluster || true
-
+echo
 if [ -n "$failed" ]; then
-  echo "FAILED"
+  echo "☣️ Ruh roh! something catastrophically bad happened, aborting launch mission."
   exit 1
 fi
 
-echo "PASSED"
+echo "💍 Charmed Ring cluster ready!"
+echo
+echo "Don't forget to export the required environment variable"
+echo "to use the Charmed Ring cluster:"
+echo "  export CHARM_HOST=localhost"
+echo
+echo "To monitor cluster logs:"
+echo "  docker-compose logs -f"
+echo
+echo "To clean up:"
+echo "  script/clean-cluster"

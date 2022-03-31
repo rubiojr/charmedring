@@ -1,7 +1,7 @@
 version: "3"
 services:
   charm1:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: charm1
     volumes:
       - ./tmp/cluster/charm1:/data
@@ -11,7 +11,7 @@ services:
       - 4002:35354 # http
       - 4003:35356 # health
   charm2:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: charm2
     volumes:
       - ./tmp/cluster/charm2:/data
@@ -22,7 +22,7 @@ services:
       - 5003:35356 # health
     command: serve
   charm3:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: charm3
     volumes:
       - ./tmp/cluster/charm3:/data
@@ -38,15 +38,18 @@ services:
       - charm1
       - charm2
       - charm3
+    environment:
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
     container_name: cring
     hostname: cring
     restart: unless-stopped
     ports:
       - 35354:35354
       - 35353:35353
-    command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354
+    command: serve --host http://charm1:35354 --host http://charm2:35354 --host http://charm3:35354 --debug --backup-url http://minio:9000 --backup-bucket charmedring
   client:
-    image: charmcli/charm:latest
+    image: charmcli/charm:v0.11.0
     container_name: client
     depends_on:
       - cring
@@ -55,3 +58,20 @@ services:
     environment:
       HOME: /root
     command: -v
+  minio:
+    image: quay.io/minio/minio:RELEASE.2021-12-29T06-49-06Z
+    command: server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio1
+    volumes:
+      - ./tmp/minio:/data
