@@ -8,7 +8,7 @@ touch tmp/go.mod
 ./script/docker-build
 
 docker-compose up -d charm1 charm2 charm3 minio cring
-docker-compose --log-level ERROR run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:one
+docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:one
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:two
 docker-compose run -e CHARM_HOST=cring client fs cp /usr/local/bin/charm charm:tree
 docker run -v $PWD/tmp/:/mnt alpine chown -R $(id -u):$(id -u) /mnt
