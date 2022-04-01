@@ -86,11 +86,16 @@ var serveCmd = &cobra.Command{
 		cring := middleware.CharmedRing(hosts)
 		middlewares = append(middlewares, cring)
 
+		cpm, err := middleware.CharmProxy(hosts[0])
+		if err != nil {
+			return fmt.Errorf("error initializing Charm proxy middleware: %w", err)
+		}
+
 		authorized := router.Group("/")
-		authorized.GET("/*path", middleware.CharmProxy(hosts[0]))
+		authorized.GET("/*path", cpm)
 		authorized.POST("/v1/fs/*path", middlewares...)
 		authorized.DELETE("/v1/fs/*path", cring)
-		router.NoRoute(middleware.CharmProxy(hosts[0]))
+		router.NoRoute(cpm)
 
 		sshBackend := fmt.Sprintf("%s:%d", sshURL.Hostname(), sshBackendPort)
 		go func() {

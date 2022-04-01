@@ -22,7 +22,7 @@ func RenderErrorf(c *gin.Context, msg string, args ...interface{}) {
 }
 
 func Errorf(msg string, args ...interface{}) {
-	stdlog.Printf(msg, args...)
+	stdlog.Printf("[error] "+msg, args...)
 }
 
 func Debugf(msg string, args ...interface{}) {
