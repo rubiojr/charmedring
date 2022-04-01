@@ -14,7 +14,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func JWKS() gin.HandlerFunc, error {
+func JWKS() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims, err := getClaims(c.GetHeader("Authorization"))
 		if err != nil {
