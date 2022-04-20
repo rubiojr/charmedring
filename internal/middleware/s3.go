@@ -143,7 +143,7 @@ func newUploader(endpointURL, accessKeyID, secretAccessKey, bucket, region strin
 		if errBucketExists == nil && exists {
 			s3Debugf("bucket %s already exists", bucket)
 		} else {
-			return nil, err
+			s3Errorf("error creating the bucket, hoping for the best: %s", err)
 		}
 	} else {
 		s3Debugf("bucket %s successfully created", bucket)
