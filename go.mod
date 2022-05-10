@@ -7,9 +7,8 @@ require (
 	github.com/buraksezer/consistent v0.9.0
 	github.com/cespare/xxhash v1.1.0
 	github.com/gin-gonic/gin v1.7.7
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.1
-	github.com/minio/minio-go/v7 v7.0.20
+	github.com/minio/minio-go/v7 v7.0.26
 	github.com/spf13/cobra v1.3.0
 )
 
