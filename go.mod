@@ -8,7 +8,7 @@ require (
 	github.com/cespare/xxhash v1.1.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v4 v4.4.2
-	github.com/minio/minio-go/v7 v7.0.37
+	github.com/minio/minio-go/v7 v7.0.38
 	github.com/spf13/cobra v1.5.0
 )
 
