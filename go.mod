@@ -3,7 +3,7 @@ module github.com/rubiojr/charmedring
 go 1.17
 
 require (
-	github.com/auth0/go-jwt-middleware/v2 v2.0.1
+	github.com/auth0/go-jwt-middleware/v2 v2.1.0
 	github.com/buraksezer/consistent v0.10.0
 	github.com/cespare/xxhash v1.1.0
 	github.com/gin-gonic/gin v1.8.1
