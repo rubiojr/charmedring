@@ -8,7 +8,7 @@ require (
 	github.com/cespare/xxhash v1.1.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/minio/minio-go/v7 v7.0.49
+	github.com/minio/minio-go/v7 v7.0.52
 	github.com/spf13/cobra v1.7.0
 )
 
@@ -24,8 +24,8 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.15 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
+	github.com/klauspost/compress v1.16.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
